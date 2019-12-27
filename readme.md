@@ -18,6 +18,8 @@ a k-v document database based on raft
 * Delete
     * DeleteAll
     * SpecifyConditions to delete documents
+* Watch
+    * Watch for value update of sepcific key
 
 # how to SpecifyConditions
     * Equality
