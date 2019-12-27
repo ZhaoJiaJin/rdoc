@@ -3,6 +3,7 @@ a k-v document database based on raft
 
 # features
 
+* document have auto generated id
 * Distributed lock(with timeout)
     * Lock 
     * Unlock
@@ -11,8 +12,12 @@ a k-v document database based on raft
     * SpecifyConditions
     
 * Create
+    * Add a document
 * Update
+    * SpecifyConditions to update documents
 * Delete
+    * DeleteAll
+    * SpecifyConditions to delete documents
 
 # how to SpecifyConditions
     * Equality
