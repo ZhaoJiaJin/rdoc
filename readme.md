@@ -8,7 +8,7 @@ a k-v document database based on raft
     * FindAll
     * SpecifyConditions
         * Equality
-        ```json
+        ```python
         {key:value}
         ```
 * Create
