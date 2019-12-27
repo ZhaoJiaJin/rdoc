@@ -3,7 +3,9 @@ a k-v document database based on raft
 
 # features
 
-* distributed lock
+* Distributed lock(with timeout)
+    * Lock 
+    * Unlock
 * Read
     * FindAll
     * SpecifyConditions
@@ -11,6 +13,37 @@ a k-v document database based on raft
         ```python
         {key:value}
         ```
+        * Less Than
+        ```python
+        {
+            key:{"$lt":value}
+        }
+        ```
+        * Great Than
+        ```python
+        {
+            key:{"$gt":value}
+        }
+        ```
+        * Less Than Equals
+        ```python
+        {
+            key:{"$lte":value}
+        }
+        ```
+        * Great Than Equals
+        ```python
+        {
+            key:{"$gte":value}
+        }
+        ```
+        * Not Equals
+        ```python
+        {
+            key:{"$ne":value}
+        }
+        ```
+
 * Create
 * Update
 * Delete
