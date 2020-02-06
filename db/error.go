@@ -5,7 +5,7 @@ import(
     "errors"
 )
 
-const(
+var(
     //ErrColExist Collection already exist
     ErrColExist = errors.New("Collection exist")
     //ErrColNotExist Collection doesn't exist

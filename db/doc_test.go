@@ -20,7 +20,6 @@ func TestDocGetIn(t *testing.T){
     if err != nil{
         t.Fatal(err)
     }
-    t.Log(d)
-    res := t.GetIn([]string{"a","hah"})
+    res := GetIn(d,[]string{"a","hah"})
     t.Log(res)
 }

@@ -14,8 +14,12 @@ func NewDoc(data []byte)(*Doc,error){
     return d, err
 }
 
-func (d *Doc)GetIn(path []string)(ret []interface{}){
-    var thing interface{} = d
+func GetIn(doc interface{},path []string)(ret []interface{}){
+    docMap, ok := doc.(map[string]interface{})
+	if !ok {
+		return
+	}
+    var thing interface{} = docMap
 	// Get into each path segment
 	for i, seg := range path {
 		if aMap, ok := thing.(map[string]interface{}); ok {

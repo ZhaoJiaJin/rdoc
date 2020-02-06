@@ -60,20 +60,20 @@ func (db *DB)RenameCol(oldname,newname string)(error){
 }
 
 //GetAllCol get names of all collections
-func (db *DB)GetAllCol()([]ID){
-    res := make([]ID,0)
+func (db *DB)GetAllCol()([]string){
+    res := make([]string,0)
     db.cols.Range(func(key, value interface{}) bool{
-        res = append(res,key.(ID))
+        res = append(res,key.(string))
         return true
     })
     return res
 }
 
 //InsertDoc insert doc into a collection
-func (db *DB)InsertDoc(colname string,data []byte)(ID,error){
+func (db *DB)InsertDoc(colname string,data []byte)(string,error){
     col,ok := db.load(colname)
     if !ok{
-        return *new(ID),ErrColNotExist
+        return "",ErrColNotExist
     }
     return col.AddDoc(data)
 }
@@ -127,7 +127,7 @@ func (db *DB)QueryDoc(colname string,data []byte)(map[string]*Doc,error){
     if err != nil{
         return res,err
     }
-    res = make(map[ID]*Doc)
+    res = make(map[string]*Doc)
     for _,id := range ids{
         res[id] = col.ReadDoc(id)
     }
@@ -155,9 +155,10 @@ func (db *DB)RemoveIndex(colname, path string)(error){
 
 //GetAllIndex return all index names
 func (db *DB)GetAllIndex(colname string)([]string, error){
+    res := make([]string,0)
     col, ok := db.load(colname)
     if !ok{
-        return ErrColNotExist
+        return res,ErrColNotExist
     }
     return col.GetAllIndex()
 }

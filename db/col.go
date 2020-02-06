@@ -7,7 +7,7 @@ import(
 
 //Col collection 
 type Col struct{
-    docs map[ID]*Doc
+    docs map[string]*Doc
     index map[string]*Index //what if there are duplicated index entry
     doclock sync.RWMutex
     idxlock sync.RWMutex
@@ -16,13 +16,13 @@ type Col struct{
 //NewCol Create New Collection
 func NewCol()*Col{
     return &Col{
-        docs:make(map[ID]*Doc),
+        docs:make(map[string]*Doc),
         index:make(map[string]*Index),
     }
 }
 
 //AddDoc add doc into collection
-func (c *Col)AddDoc(data []byte)(ID,error){
+func (c *Col)AddDoc(data []byte)(string,error){
     id := RandID()
     doc,err := NewDoc(data)
     if err != nil{
@@ -34,7 +34,7 @@ func (c *Col)AddDoc(data []byte)(ID,error){
 
     c.idxlock.RLock()
     for _,idx := range c.index{
-        idx.IndexDoc(&id,doc)
+        idx.IndexDoc(id,doc)
     }
     c.idxlock.RUnlock()
     //generate id
@@ -50,7 +50,10 @@ func (c *Col)MergeDoc(data []byte)error{
 func (c *Col)DeleteDoc(ids string)error{
     return nil
 }
-func (c *Col)QueryDocID(data []byte)(res []ID,err error){
+func (c *Col)QueryDocID(data []byte)(res []string,err error){
+    return
+}
+func (c *Col)ReadDoc(id string)(res *Doc){
     return
 }
 
@@ -64,9 +67,9 @@ func (c *Col)RmIndex(paths string)(error){
     return nil
 }
 
-func (c *Col)GetAllIndex(paths string)(error){
+func (c *Col)GetAllIndex()(ret []string,err error){
 
-    return nil
+    return
 }
 
 
