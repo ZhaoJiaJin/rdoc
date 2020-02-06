@@ -12,3 +12,15 @@ func TestNewDoc(t *testing.T){
     }
     t.Log(d)
 }
+
+
+func TestDocGetIn(t *testing.T){
+    data := `{"a": {"hah":1}, "b": 2}`
+    d,err := NewDoc([]byte(data))
+    if err != nil{
+        t.Fatal(err)
+    }
+    t.Log(d)
+    res := t.GetIn([]string{"a","hah"})
+    t.Log(res)
+}
