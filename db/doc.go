@@ -1,25 +1,30 @@
 package db
 
 import(
-    "encoding/json"
+	"encoding/json"
 )
 
 
-type Doc map[string]interface{}
+type Doc struct{
+    data map[string]interface{}
+}
+
 
 
 func NewDoc(data []byte)(*Doc,error){
-    d := new(Doc)
-    err := json.Unmarshal(data,d)
-    return d, err
+	d := Doc{
+        data:make(map[string]interface{}),
+    }
+	err := json.Unmarshal(data,&d.data)
+	return &d, err
 }
 
 func GetIn(doc interface{},path []string)(ret []interface{}){
-    docMap, ok := doc.(map[string]interface{})
+	docMap, ok := doc.(map[string]interface{})
 	if !ok {
 		return
 	}
-    var thing interface{} = docMap
+	var thing interface{} = docMap
 	// Get into each path segment
 	for i, seg := range path {
 		if aMap, ok := thing.(map[string]interface{}); ok {
