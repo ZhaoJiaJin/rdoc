@@ -42,3 +42,33 @@ func GetIn(doc interface{}, path []string) (ret []interface{}) {
 		return append(ret, thing)
 	}
 }
+//Merge merge two documents
+func (d *Doc)Merge(ndoc *Doc){
+    merge(d.data, ndoc.data)
+}
+
+func merge(d1 map[string]interface{},d2 map[string]interface{}){
+    /*d1map, ok := d1.(map[string]interface{})
+    if !ok{
+        return
+    }
+    d2map, ok := d2.(map[string]interface{})
+    if !ok{
+        return
+    }*/
+    for k,v := range d2{
+        d1v,ok := d1[k]
+        if !ok{
+            d1[k] = v
+        }else{
+            d1vmap,d1vok := d1v.(map[string]interface{})
+            d2vmap,d2vok := d2[k].(map[string]interface{})
+            if d1vok && d2vok{
+                merge(d1vmap,d2vmap)
+            }else{
+                d1[k] = v
+            }
+        }
+    }
+
+}

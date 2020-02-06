@@ -10,7 +10,7 @@ import (
 //Index index struct
 type Index struct {
 	paths  []string
-	indexs map[int][]string
+	indexs map[int]*IDList
 	sync.RWMutex
 }
 
@@ -18,7 +18,7 @@ type Index struct {
 func NewIndex(path string) *Index {
 	return &Index{
 		paths:  strings.Split(path, ","),
-		indexs: make(map[int][]string),
+		indexs: make(map[int]*IDList),
 	}
 }
 
@@ -29,13 +29,16 @@ func (idx *Index) IndexDoc(id string, d *Doc) {
 			hashKey := utils.StrHash(fmt.Sprint(idxVal))
 			idx.Lock()
 			if _, ok := idx.indexs[hashKey]; !ok {
-				idx.indexs[hashKey] = make([]string, 0)
+				idx.indexs[hashKey] = NewIDList()
 			}
-            idx.indexs[hashKey] = append(idx.indexs[hashKey],id)
+            idx.indexs[hashKey].Add(id)
 			idx.Unlock()
 		}
 	}
 }
 
+func (idx *Index)UnIndex(id string){
+
+}
 
 //func (idx *Index)Query()

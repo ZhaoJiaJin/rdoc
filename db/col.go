@@ -2,6 +2,7 @@ package db
 
 import (
 	"sync"
+    "strings"
 )
 
 //Col collection
@@ -42,17 +43,43 @@ func (c *Col) AddDoc(data []byte) (string, error) {
 
 //UpdateDoc update document
 func (c *Col) UpdateDoc(ids string, data []byte) error {
+    for _,id := range strings.Split(ids,","){
+        newdoc,err := NewDoc(data)
+        if err != nil{
+            return err
+        }
+        c.doclock.Lock()
+        c.docs[id] = newdoc
+        c.doclock.Unlock()
+        //TODO
+        c.idxlock.RLock()
+        for _,idxe := range c.index{
+            idxe.UnIndex(id)
+            idxe.IndexDoc(id,newdoc)
+        }
+        c.idxlock.RUnlock()
+    }
+	return nil
+}
+
+//MergeDoc merge given document to existing document
+func (c *Col) MergeDoc(ids string, data []byte) error {
     newdoc,err := NewDoc(data)
     if err != nil{
         return err
     }
-    //TODO
-    //for _,id := range 
-
-	return nil
-}
-
-func (c *Col) MergeDoc(data []byte) error {
+    for _,id := range strings.Split(ids,","){
+        c.doclock.Lock()
+        c.docs[id].Merge(newdoc)
+        c.doclock.Unlock()
+        //TODO
+        c.idxlock.RLock()
+        for _,idxe := range c.index{
+            idxe.UnIndex(id)
+            idxe.IndexDoc(id,newdoc)
+        }
+        c.idxlock.RUnlock()
+    }
 	return nil
 }
 func (c *Col) DeleteDoc(ids string) error {

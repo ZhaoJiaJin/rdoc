@@ -88,7 +88,7 @@ func (db *DB) UpdateDoc(colname string, data []byte, ids string) error {
 	if !ok {
 		return ErrColNotExist
 	}
-	return col.UpdateDoc(data)
+	return col.UpdateDoc(ids,data)
 }
 
 //MergeDoc merge document with given document
@@ -97,7 +97,7 @@ func (db *DB) MergeDoc(colname string, data []byte, ids string) error {
 	if !ok {
 		return ErrColNotExist
 	}
-	return col.MergeDoc(data)
+	return col.MergeDoc(ids,data)
 }
 
 //DeleteDoc insert doc into a collection
