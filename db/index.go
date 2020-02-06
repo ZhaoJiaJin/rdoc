@@ -31,14 +31,19 @@ func (idx *Index) IndexDoc(id string, d *Doc) {
 			if _, ok := idx.indexs[hashKey]; !ok {
 				idx.indexs[hashKey] = NewIDList()
 			}
-            idx.indexs[hashKey].Add(id)
 			idx.Unlock()
+            idx.indexs[hashKey].Add(id)
 		}
 	}
 }
 
+//UnIndex remove id from index
 func (idx *Index)UnIndex(id string){
-
+    idx.RLock()
+    for _, v := range idx.indexs{
+        v.Remove(id)
+    }
+    idx.RUnlock()
 }
 
 //func (idx *Index)Query()
