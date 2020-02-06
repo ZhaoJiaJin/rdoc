@@ -1,3 +1,6 @@
+# A high avaliable document database based on Raft Algorithm, inspired by [tiedot](https://github.com/HouzuoGuo/tiedot/wiki/Tutorial) and [Raft](https://raft.github.io/)
+
+
 # how to design a document database.
 
 * Doc:
