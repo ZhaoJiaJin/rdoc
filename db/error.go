@@ -9,4 +9,8 @@ var (
 	ErrColExist = errors.New("Collection exist")
 	//ErrColNotExist Collection doesn't exist
 	ErrColNotExist = errors.New("Collection doesn't exist")
+
+
+	//ErrIDXExist index already exist
+	ErrIDXExist = errors.New("index exist")
 )

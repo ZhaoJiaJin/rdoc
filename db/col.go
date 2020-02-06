@@ -40,9 +40,18 @@ func (c *Col) AddDoc(data []byte) (string, error) {
 	return id, nil
 }
 
-func (c *Col) UpdateDoc(data []byte) error {
+//UpdateDoc update document
+func (c *Col) UpdateDoc(ids string, data []byte) error {
+    newdoc,err := NewDoc(data)
+    if err != nil{
+        return err
+    }
+    //TODO
+    //for _,id := range 
+
 	return nil
 }
+
 func (c *Col) MergeDoc(data []byte) error {
 	return nil
 }
@@ -56,7 +65,25 @@ func (c *Col) ReadDoc(id string) (res *Doc) {
 	return
 }
 
+//CreateIndex create index for a collection
 func (c *Col) CreateIndex(paths string) error {
+    c.idxlock.RLock()
+    if _,ok := c.index[paths]; ok{
+        c.idxlock.RUnlock()
+        return ErrIDXExist
+    }
+    c.idxlock.RUnlock()
+
+    c.idxlock.Lock()
+    nidx := NewIndex(paths)
+    c.index[paths] = nidx
+    c.idxlock.Unlock()
+
+    c.doclock.RLock()
+    for id,doc := range c.docs{
+        nidx.IndexDoc(id,doc)
+    }
+    c.doclock.RUnlock()
 	return nil
 }
 

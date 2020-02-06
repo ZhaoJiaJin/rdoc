@@ -32,6 +32,10 @@ func (idx *Index) IndexDoc(id string, d *Doc) {
 				idx.indexs[hashKey] = make([]string, 0)
 			}
             idx.indexs[hashKey] = append(idx.indexs[hashKey],id)
+			idx.Unlock()
 		}
 	}
 }
+
+
+//func (idx *Index)Query()

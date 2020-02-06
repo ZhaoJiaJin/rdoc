@@ -36,6 +36,7 @@ func (db *DB) CreateCol(colname string) error {
 	if loaded {
 		return ErrColExist
 	}
+    db.store(colname,NewCol())
 	return nil
 }
 
@@ -50,11 +51,14 @@ func (db *DB) RenameCol(oldname, newname string) error {
 	if !ok {
 		return ErrColNotExist
 	}
-	_, ok = db.load(newname)
+	/*_, ok = db.load(newname)
 	if ok {
 		return ErrColExist
-	}
-	db.loadOrStore(newname, col)
+	}*/
+    _,loaded := db.loadOrStore(newname, col)
+    if loaded{
+		return ErrColExist
+    }
 	db.del(oldname)
 	return nil
 }

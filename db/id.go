@@ -3,11 +3,24 @@ package db
 import (
 	"fmt"
 	"github.com/bwmarrin/snowflake"
+    "container/list"
 )
 
 var (
 	node *snowflake.Node
 )
+
+type IDList struct{
+    list *list.List
+}
+
+func NewIDList()*IDList{
+    return &IDList{
+        list:list.New(),
+    }
+}
+
+func (l *IDList)ADD(id string)
 
 func init() {
 	var err error
