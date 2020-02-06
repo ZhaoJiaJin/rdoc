@@ -1,24 +1,23 @@
 package db
 
-import(
-    "fmt"
+import (
+	"fmt"
 	"github.com/bwmarrin/snowflake"
 )
 
-
-var(
-    node *snowflake.Node
+var (
+	node *snowflake.Node
 )
 
-func init(){
-    var err error
+func init() {
+	var err error
 	node, err = snowflake.NewNode(1)
 	if err != nil {
-        panic(err)
+		panic(err)
 	}
 }
 
 //Randstring generate randomid
-func RandID()string{
-    return fmt.Sprintf("%X",node.Generate().Int64())
+func RandID() string {
+	return fmt.Sprintf("%X", node.Generate().Int64())
 }

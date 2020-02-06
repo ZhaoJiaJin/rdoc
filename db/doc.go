@@ -1,25 +1,22 @@
 package db
 
-import(
+import (
 	"encoding/json"
 )
 
-
-type Doc struct{
-    data map[string]interface{}
+type Doc struct {
+	data map[string]interface{}
 }
 
-
-
-func NewDoc(data []byte)(*Doc,error){
+func NewDoc(data []byte) (*Doc, error) {
 	d := Doc{
-        data:make(map[string]interface{}),
-    }
-	err := json.Unmarshal(data,&d.data)
+		data: make(map[string]interface{}),
+	}
+	err := json.Unmarshal(data, &d.data)
 	return &d, err
 }
 
-func GetIn(doc interface{},path []string)(ret []interface{}){
+func GetIn(doc interface{}, path []string) (ret []interface{}) {
 	docMap, ok := doc.(map[string]interface{})
 	if !ok {
 		return
