@@ -50,12 +50,17 @@ func (l *IDList)Remove(id string){
 }
 
 //Get get all id
-func (l *IDList)Get()(ret []string){
+func (l *IDList)Get(limit int)(ret []string){
+    cnt := 0
     l.RLock()
+    defer l.RUnlock()
     for e := l.list.Front(); e != nil; e = e.Next() {
         ret = append(ret,e.Value.(string))
+        cnt ++
+        if cnt == limit{
+            return
+        }
 	}
-    l.RUnlock()
     return
 }
 

@@ -46,4 +46,31 @@ func (idx *Index)UnIndex(id string){
     idx.RUnlock()
 }
 
-//func (idx *Index)Query()
+//Query index query
+func (idx *Index)Query(val int, limit int)([]string,error){
+    var ret []string
+    idx.RLock();
+    idlist,ok := idx.indexs[val];
+    idx.RUnlock();
+    if !ok{
+        return ret,nil
+    }
+    return idlist.Get(limit),nil
+}
+
+
+//QueryExist index query existence
+func (idx *Index)QueryExist(limit int)([]string,error){
+    var ret []string
+    idx.RLock();
+    defer idx.RUnlock();
+    //idlist,ok := idx.indexs[val];
+    for _,idlist := range idx.indexs{
+        tmpres := idlist.Get(limit - len(ret))
+        ret = append(ret,tmpres...)
+        if len(ret) >= limit{
+            return ret,nil
+        }
+    }
+    return ret, nil
+}

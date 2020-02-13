@@ -9,6 +9,11 @@ type DB struct {
 	cols sync.Map
 }
 
+// NewDB create new database instance
+func NewDB()*DB{
+    return &DB{}
+}
+
 func (db *DB) loadOrStore(key string, value *Col) (*Col, bool) {
 	res, loaded := db.cols.LoadOrStore(key, value)
 	return res.(*Col), loaded
@@ -131,7 +136,7 @@ func (db *DB) QueryDoc(colname string, data []byte) (map[string]*Doc, error) {
 		return res, err
 	}
 	res = make(map[string]*Doc)
-	for _, id := range ids {
+	for id := range ids {
 		res[id] = col.ReadDoc(id)
 	}
 	return res, nil

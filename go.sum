@@ -1,2 +1,4 @@
+github.com/HouzuoGuo/tiedot v0.0.0-20191112163212-3246d2a872c5 h1:gJFFV/yU82f0N1bNIL0MzH9DSTl2FJH43uj4ClHlt7s=
+github.com/HouzuoGuo/tiedot v0.0.0-20191112163212-3246d2a872c5/go.mod h1:J2FcoVwTshOscfh8D4LCCVRoHJJQTeCAEkeRSVGnLQs=
 github.com/bwmarrin/snowflake v0.3.0 h1:xm67bEhkKh6ij1790JB83OujPR5CzNe8QuQqAgISZN0=
 github.com/bwmarrin/snowflake v0.3.0/go.mod h1:NdZxfVWX+oR6y2K0o6qAYv6gIOP9rjG0/E9WsDpxqwE=

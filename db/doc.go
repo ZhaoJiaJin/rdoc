@@ -42,6 +42,9 @@ func GetIn(doc interface{}, path []string) (ret []interface{}) {
 		return append(ret, thing)
 	}
 }
+
+
+
 //Merge merge two documents
 func (d *Doc)Merge(ndoc *Doc){
     merge(d.data, ndoc.data)
@@ -70,5 +73,4 @@ func merge(d1 map[string]interface{},d2 map[string]interface{}){
             }
         }
     }
-
 }

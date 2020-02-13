@@ -3,6 +3,7 @@ package db
 import (
 	"sync"
     "strings"
+    "encoding/json"
 )
 
 //Col collection
@@ -51,7 +52,6 @@ func (c *Col) UpdateDoc(ids string, data []byte) error {
         c.doclock.Lock()
         c.docs[id] = newdoc
         c.doclock.Unlock()
-        //TODO
         c.idxlock.RLock()
         for _,idxe := range c.index{
             idxe.UnIndex(id)
@@ -72,7 +72,6 @@ func (c *Col) MergeDoc(ids string, data []byte) error {
         c.doclock.Lock()
         c.docs[id].Merge(newdoc)
         c.doclock.Unlock()
-        //TODO
         c.idxlock.RLock()
         for _,idxe := range c.index{
             idxe.UnIndex(id)
@@ -82,13 +81,38 @@ func (c *Col) MergeDoc(ids string, data []byte) error {
     }
 	return nil
 }
+
+//DeleteDoc delete documents
 func (c *Col) DeleteDoc(ids string) error {
+    for _,id := range strings.Split(ids,","){
+        c.doclock.Lock()
+        delete(c.docs,id)
+        c.doclock.Unlock()
+        c.idxlock.RLock()
+        for _,idxe := range c.index{
+            idxe.UnIndex(id)
+        }
+        c.idxlock.RUnlock()
+    }
 	return nil
 }
-func (c *Col) QueryDocID(data []byte) (res []string, err error) {
-	return
+
+//QueryDocID query document using index
+func (c *Col) QueryDocID(data []byte) (res map[string]struct{}, err error) {
+    var qJSON interface{}
+	if err = json.Unmarshal(data, &qJSON); err != nil {
+		//http.Error(w, fmt.Sprintf("'%v' is not valid JSON.", q), 400)
+		return
+	}
+    err = EvalQuery(qJSON,c,&res)
+    return
 }
+
+//ReadDoc read document by id
 func (c *Col) ReadDoc(id string) (res *Doc) {
+    c.doclock.RLock()
+    res = c.docs[id]
+    c.doclock.RUnlock()
 	return
 }
 
@@ -114,16 +138,67 @@ func (c *Col) CreateIndex(paths string) error {
 	return nil
 }
 
+//RmIndex remove index
 func (c *Col) RmIndex(paths string) error {
+    c.idxlock.Lock()
+    delete(c.index,paths)
+    c.idxlock.Unlock()
 	return nil
 }
 
+//GetAllIndex get all index
 func (c *Col) GetAllIndex() (ret []string, err error) {
-
+    c.idxlock.RLock()
+    for k := range c.index{
+        ret = append(ret,k)
+    }
+    c.idxlock.RUnlock()
 	return
 }
 
-// rebuildIndex should be called everytime a new index is added
-func (c *Col) rebuildIndex() {
+//ForEachDoc iterate all documents
+func (c *Col) ForEachDoc(fun func(id string, doc *Doc) (bool)) {
+    c.doclock.RLock()
+    defer c.doclock.RUnlock()
+    for k,v := range c.docs{
+        if !fun(k,v){
+            return
+        }
+    }
+}
 
+// Query query using index
+func (c *Col)Query(scanpath string, lookupValueHash int, limit int)([]string,error){
+    var ret []string
+    c.idxlock.RLock()
+    pathidx,ok := c.index[scanpath]
+    if !ok{
+        c.idxlock.RUnlock()
+        return ret, ErrNotIDX
+    }
+    c.idxlock.RUnlock()
+    return pathidx.Query(lookupValueHash,limit)
+}
+
+// QueryExist query existence using index
+func (c *Col)QueryExist(scanpath string, limit int)([]string,error){
+    var ret []string
+    c.idxlock.RLock()
+    pathidx,ok := c.index[scanpath]
+    if !ok{
+        c.idxlock.RUnlock()
+        return ret, ErrNotIDX
+    }
+    c.idxlock.RUnlock()
+    return pathidx.QueryExist(limit)
+}
+
+func (c *Col)IsIndexed(path string)bool{
+    c.idxlock.RLock()
+    defer c.idxlock.RUnlock()
+
+    if _, ok := c.index[path]; !ok{
+        return false
+    }
+    return true
 }
