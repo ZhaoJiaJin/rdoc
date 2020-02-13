@@ -3,9 +3,7 @@
 
 # API
 
-## collection
-
-### create collection
+## create collection
 
 ```shell
 
@@ -13,33 +11,44 @@ curl --location --request GET 'localhost:8080/create?col=Feeds'
 
 ```
 
-```golang
+## insert a document into collection
 
-package main
+```shell
+curl --location --request POST 'localhost:8080/insert' \
+--header 'Content-Type: multipart/form-data; boundary=--------------------------383513606155476017747483' \
+--form 'col=Feeds' \
+--form 'doc={"a":{"b":1},"a1":123123}'
+```
 
-import (
-  "fmt"
-  "net/http"
-  "io/ioutil"
-)
+## query docs
 
-func main() {
+### query all docs
 
-  url := "localhost:8080/create?col=Feeds"
-  method := "GET"
+```shell
 
-  client := &http.Client {
-  }
-  req, err := http.NewRequest(method, url, nil)
-
-  if err != nil {
-    fmt.Println(err)
-  }
-  res, err := client.Do(req)
-  defer res.Body.Close()
-  body, err := ioutil.ReadAll(res.Body)
-
-  fmt.Println(string(body))
-}
+curl --location --request POST 'localhost:8080/query' \
+--header 'Content-Type: multipart/form-data; boundary=--------------------------759712145504402840994879' \
+--form 'col=Feeds' \
+--form 'q=["all"]'
 
 ```
+
+
+### query using equal
+
+```shell
+curl --location --request POST 'localhost:8080/query' \
+--header 'Content-Type: multipart/form-data; boundary=--------------------------715073562991340840763979' \
+--form 'col=Feeds' \
+--form 'q={"eq": 1, "in": ["a","b"]}'
+```
+
+
+## create index for a collection
+
+```shell
+curl --location --request POST 'localhost:8080/index' \
+--form 'col=Feeds' \
+--form 'path=a,b'
+```
+
