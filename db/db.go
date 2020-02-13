@@ -125,6 +125,20 @@ func (db *DB) CountDoc(colname string, data []byte) (int, error) {
 }
 
 //QueryDoc query doc
+func (db *DB) QueryDocByID(colname string, id string) (map[string]*Doc, error) {
+	var res map[string]*Doc
+	col, ok := db.load(colname)
+	if !ok {
+		return res, ErrColNotExist
+	}
+	res = make(map[string]*Doc)
+	res[id] = col.ReadDoc(id)
+	return res, nil
+}
+
+
+
+//QueryDoc query doc
 func (db *DB) QueryDoc(colname string, data []byte) (map[string]*Doc, error) {
 	var res map[string]*Doc
 	col, ok := db.load(colname)
