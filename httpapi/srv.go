@@ -4,7 +4,7 @@ import (
 	"fmt"
     log "github.com/sirupsen/logrus"
 	"net/http"
-
+    "time"
 	"rdoc/db"
 )
 
@@ -32,17 +32,29 @@ func Start(port int, bind, authToken string) {
 		log.Info("API endpoints now require the pre-shared token in Authorization header.")
 		authWrap = func(originalHandler http.HandlerFunc) http.HandlerFunc {
 			return func(w http.ResponseWriter, r *http.Request) {
+                starttime := time.Now().UnixNano()
+                log.Infof("receive new %v request %v",r.Method,r.URL.Path)
 				if "token "+authToken != r.Header.Get("Authorization") {
 					http.Error(w, "", http.StatusUnauthorized)
 					return
 				}
 				originalHandler(w, r)
+                endtime := time.Now().UnixNano()
+                log.Infof("process request %v request %v cost:%v",r.Method,r.URL.Path,(endtime - starttime)/1e6)
 			}
 		}
 	}else {
 		log.Info("API endpoints do not require Authorization header.")
 		authWrap = func(originalHandler http.HandlerFunc) http.HandlerFunc {
-			return originalHandler
+            return func(w http.ResponseWriter, r *http.Request) {
+                starttime := time.Now().UnixNano()
+                log.Infof("receive new %v request %v",r.Method,r.URL.Path)
+				originalHandler(w, r)
+                endtime := time.Now().UnixNano()
+                log.Infof("process request %v request %v cost:%v",r.Method,r.URL.Path,(endtime - starttime)/1e6)
+			}
+
+			//return originalHandler
 		}
 	}
 	// collection management (stop-the-world)
