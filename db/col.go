@@ -101,7 +101,6 @@ func (c *Col) DeleteDoc(ids string) error {
 func (c *Col) QueryDocID(data []byte) (res map[string]struct{}, err error) {
     var qJSON interface{}
 	if err = json.Unmarshal(data, &qJSON); err != nil {
-		//http.Error(w, fmt.Sprintf("'%v' is not valid JSON.", q), 400)
 		return
 	}
     err = EvalQuery(qJSON,c,&res)

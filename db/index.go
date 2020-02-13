@@ -17,7 +17,7 @@ type Index struct {
 //NewIndex create new index
 func NewIndex(path string) *Index {
 	return &Index{
-		paths:  strings.Split(path, ","),
+		paths:  strings.Split(path, INDEX_PATH_SEP),
 		indexs: make(map[int]*IDList),
 	}
 }
@@ -26,6 +26,7 @@ func NewIndex(path string) *Index {
 func (idx *Index) IndexDoc(id string, d *Doc) {
 	for _, idxVal := range GetIn(d.data, idx.paths) {
 		if idxVal != nil {
+			//hashKey := utils.StrHash(fmt.Sprint(idxVal))
 			hashKey := utils.StrHash(fmt.Sprint(idxVal))
 			idx.Lock()
 			if _, ok := idx.indexs[hashKey]; !ok {
