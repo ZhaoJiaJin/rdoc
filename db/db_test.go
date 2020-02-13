@@ -19,13 +19,22 @@ func TestDB(t *testing.T){
     }
 
     //test create index
-    //err := db.CreateIndex(colname,"")
+    err = db.CreateIndex(colname,"")
+    if err != nil{
+        t.Fatal(err)
+    }
 
 
-
-    // test get all
-
-    //test rename
-
-    //test remove
+    data := `{"a": {"b":1}, "a1": 2}`
+    id,err := db.InsertDoc(colname,[]byte(data))
+    if err != nil{
+        t.Fatal(err)
+    }
+    t.Log("add doc:",id)
+    data = `{"a": {"b":1}, "a1": 2}`
+    id,err = db.InsertDoc(colname,[]byte(data))
+    if err != nil{
+        t.Fatal(err)
+    }
+    t.Log("add doc:",id)
 }

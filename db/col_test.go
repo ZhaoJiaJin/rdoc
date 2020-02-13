@@ -39,4 +39,7 @@ func TestDoc(t *testing.T){
         t.Fatal("wrong query result")
     }
 
+    d1 := col.ReadDoc(id2)
+    t.Log(d1)
+
 }
