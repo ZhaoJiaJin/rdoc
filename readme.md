@@ -1,27 +1,45 @@
 # A high available document database based on Raft Algorithm, inspired by [tiedot](https://github.com/HouzuoGuo/tiedot/wiki/Tutorial) and [Raft](https://raft.github.io/)
 
 
-# how to design a document database.
+# API
 
-* Doc:
-* Col: one collection contains many documents
-* index:
-  * index
-  * id to phyid
+## collection
 
+### create collection
 
+```shell
 
-# basic data structure
+curl --location --request GET 'localhost:8080/create?col=Feeds'
 
-* Collection: every collection should be a separated array, this array will contains multiple documents. the initial size of array should be SizeOfASingleDocument*#MaxDocument. If
+```
 
+```golang
 
+package main
 
+import (
+  "fmt"
+  "net/http"
+  "io/ioutil"
+)
 
+func main() {
 
+  url := "localhost:8080/create?col=Feeds"
+  method := "GET"
 
+  client := &http.Client {
+  }
+  req, err := http.NewRequest(method, url, nil)
 
-# Question
+  if err != nil {
+    fmt.Println(err)
+  }
+  res, err := client.Do(req)
+  defer res.Body.Close()
+  body, err := ioutil.ReadAll(res.Body)
 
-1. do we need to support add en entry to an array in a doc.
+  fmt.Println(string(body))
+}
 
+```
