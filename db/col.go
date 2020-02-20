@@ -99,6 +99,7 @@ func (c *Col) DeleteDoc(ids string) error {
 
 //QueryDocID query document using index
 func (c *Col) QueryDocID(data []byte) (res map[string]struct{}, err error) {
+    res = make(map[string]struct{})
     var qJSON interface{}
 	if err = json.Unmarshal(data, &qJSON); err != nil {
 		return

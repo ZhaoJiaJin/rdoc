@@ -125,8 +125,24 @@ func (db *DB) CountDoc(colname string, data []byte) (int, error) {
 }
 
 //QueryDoc query doc
-func (db *DB) QueryDoc(colname string, data []byte) (map[string]*Doc, error) {
-	var res map[string]*Doc
+func (db *DB) QueryDocByID(colname string, id string) (map[string]interface{}, error) {
+	var res map[string]interface{}
+	col, ok := db.load(colname)
+	if !ok {
+		return res, ErrColNotExist
+	}
+	res = make(map[string]interface{})
+    if cl :=  col.ReadDoc(id); cl != nil{
+	    res[id] = cl.data
+    }
+	return res, nil
+}
+
+
+
+//QueryDoc query doc
+func (db *DB) QueryDoc(colname string, data []byte) (map[string]interface{}, error) {
+	var res map[string]interface{}
 	col, ok := db.load(colname)
 	if !ok {
 		return res, ErrColNotExist
@@ -135,9 +151,11 @@ func (db *DB) QueryDoc(colname string, data []byte) (map[string]*Doc, error) {
 	if err != nil {
 		return res, err
 	}
-	res = make(map[string]*Doc)
+	res = make(map[string]interface{})
 	for id := range ids {
-		res[id] = col.ReadDoc(id)
+        if tmpcl := col.ReadDoc(id);tmpcl != nil{
+		    res[id] = tmpcl.data
+        }
 	}
 	return res, nil
 }
