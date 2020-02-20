@@ -70,6 +70,10 @@ func (c *Col) MergeDoc(ids string, data []byte) error {
     }
     for _,id := range strings.Split(ids,","){
         c.doclock.Lock()
+        if _,ok := c.docs[id]; !ok{
+            c.doclock.Unlock()
+            continue
+        }
         c.docs[id].Merge(newdoc)
         c.doclock.Unlock()
         c.idxlock.RLock()
