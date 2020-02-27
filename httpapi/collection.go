@@ -20,16 +20,18 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
     ope := db.Operate{OpeType:db.CREATECOL, ColName:col}
-    HttpDB.Propose(ope)
-    //TODO: return result
-	//if err := HttpDB.CreateCol(col); err != nil {
-	//	http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-	//} else {
+    reschan,_ := HttpDB.Propose(ope)
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+	if res.Err != nil {
+		http.Error(w, fmt.Sprint(res.Err), http.StatusBadRequest)
+	} else {
 		w.WriteHeader(http.StatusCreated)
-	//}
+	}
 }
 
-// Alll Return all collection names.
+// All Return all collection names.
 func All(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "must-revalidate")
 	w.Header().Set("Content-Type", "application/json")
@@ -58,11 +60,13 @@ func Rename(w http.ResponseWriter, r *http.Request) {
 		return
 	}
     ope := db.Operate{OpeType:db.RENAMECOL, ColName:oldName, Data:[]byte(newName)}
-    HttpDB.Propose(ope)
-    //TODO: return result
-	//if err := HttpDB.RenameCol(oldName, newName); err != nil {
-	//	http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-	//}
+    reschan, _ := HttpDB.Propose(ope)
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+	if res.Err != nil {
+		http.Error(w, fmt.Sprint(res.Err), http.StatusBadRequest)
+	}
 }
 
 // Drop a collection.
@@ -77,7 +81,9 @@ func Drop(w http.ResponseWriter, r *http.Request) {
 	}
 	//HttpDB.RemoveCol(col)
     ope := db.Operate{OpeType:db.RENAMECOL, ColName:col}
-    HttpDB.Propose(ope)
-    //TODO: return result
+    reschan, _ := HttpDB.Propose(ope)
+    //var res *db.OpeRet
+    for _ = range reschan{
+    }
 }
 

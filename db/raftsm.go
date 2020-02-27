@@ -30,9 +30,16 @@ type Operate struct{
     Path string
 }
 
+//OpeRet operate result
+type OpeRet struct{
+    Msg string
+    Err error
+}
+
 //NewDBWithRaft create db instance with raft support
 func NewDBWithRaft(snapshotter *snap.Snapshotter, proposeC chan<- string, commitC <-chan *string, errorC <-chan error)*DB{
     db := NewDB()
+    db.resCMap = make(map[string]chan *OpeRet)
     db.proposeC = proposeC
     db.snapshotter = snapshotter
 
@@ -63,63 +70,66 @@ func (db *DB) readCommits(commitC <-chan *string, errorC <-chan error){
         if err := dec.Decode(&dataOpe); err != nil{
 			log.Fatalf("readCommits: could not decode message (%v)", err)
         }
-        msg,err := db.applyOpe(&dataOpe)
-        if err != nil{
-            log.Errorf("applyOpe:%v",err)
-        }else{
-            log.Infof("applyOpe:%v",msg)
+        res := db.applyOpe(&dataOpe)
+        db.reslock.RLock()
+        reschan,ok := db.resCMap[dataOpe.OID]
+        db.reslock.RUnlock()
+        if ok{
+            reschan <- res
+            close(reschan)
+            db.reslock.Lock()
+            delete(db.resCMap,dataOpe.OID)
+            db.reslock.Unlock()
         }
-        //TODO:pass msg & err to http api
     }
     if err, ok := <-errorC; ok{
         log.Fatal("errorC:",err)
     }
 }
 
-func (db *DB)applyOpe(ope *Operate)(interface{},error){
-    ok := ""
-    //fail := "fail"
+func (db *DB)applyOpe(ope *Operate)(res *OpeRet){
+    res = &OpeRet{}
     switch ope.OpeType{
     case CREATECOL:
-        err := db.CreateCol(ope.ColName)
-        return ok,err
+        res.Err = db.CreateCol(ope.ColName)
     case REMOVECOL:
         db.RemoveCol(ope.ColName)
-        return "",nil
     case RENAMECOL:
-        err := db.RenameCol(ope.ColName,string(ope.Data))
-        return "",err
+        res.Err = db.RenameCol(ope.ColName,string(ope.Data))
     case INSERTDOC:
-        return db.InsertDoc(ope.ColName, ope.Data,ope.OID)
+        res.Msg, res.Err = db.InsertDoc(ope.ColName, ope.Data,ope.OID)
     case UPDATEDOC:
-        err := db.UpdateDoc(ope.ColName, ope.Data, ope.IDs)
-        return "",err
+        res.Err = db.UpdateDoc(ope.ColName, ope.Data, ope.IDs)
     case MERGEDOC:
-        err := db.MergeDoc(ope.ColName, ope.Data, ope.IDs)
-        return "",err
+        res.Err = db.MergeDoc(ope.ColName, ope.Data, ope.IDs)
     case DELETEDOC:
-        err := db.DeleteDoc(ope.ColName,ope.IDs)
-        return "",err
+        res.Err = db.DeleteDoc(ope.ColName,ope.IDs)
     case CREATEIDX:
-        err := db.CreateIndex(ope.ColName,ope.Path)
-        return "",err
+        res.Err = db.CreateIndex(ope.ColName,ope.Path)
     case RMIDX:
-        err := db.RemoveIndex(ope.ColName,ope.Path)
-        return "",err
+        res.Err = db.RemoveIndex(ope.ColName,ope.Path)
     default:
-        return "",ErrUnSuppOpe
+        res.Err = ErrUnSuppOpe
     }
+    return
 }
 
-func (db *DB) Propose(ope Operate){
-    if ope.OID == ""{
-        ope.OID = RandID()
-    }
+// Propose propose a new request
+func (db *DB) Propose(ope Operate)(chan *OpeRet, string){
+    //if ope.OID == ""{
+    ope.OID = RandID()
+    //}
+    rchan := make(chan *OpeRet,1)
+    db.reslock.Lock()
+    db.resCMap[ope.OID] = rchan
+    db.reslock.Unlock()
+
     var buf bytes.Buffer
     if err := gob.NewEncoder(&buf).Encode(ope); err != nil{
         log.Fatal("Propose:",err)
     }
     db.proposeC <- buf.String()
+    return rchan, ope.OID
 }
 
 func (db *DB) GetSnapshot()([]byte,error){

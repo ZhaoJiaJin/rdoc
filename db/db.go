@@ -11,6 +11,8 @@ type DB struct {
     proposeC chan<- string
     snapshotter *snap.Snapshotter
 	cols sync.Map
+    resCMap map[string]chan *OpeRet
+    reslock sync.RWMutex
 }
 
 // NewDB create new database instance

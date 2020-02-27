@@ -33,10 +33,16 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 	}*/
 
     ope := db.Operate{OpeType:db.INSERTDOC, ColName:col,Data:[]byte(doc)}
-    HttpDB.Propose(ope)
-    //TODO: return result
-	w.WriteHeader(201)
-    w.Write([]byte(fmt.Sprint("TODO:ID")))
+    reschan, _ := HttpDB.Propose(ope)
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+    if res.Err != nil{
+        http.Error(w, res.Err.Error(), http.StatusInternalServerError)
+    }else{
+	    w.WriteHeader(201)
+        w.Write([]byte(res.Msg))
+    }
 }
 
 // Get find and retrieve a document by ID.
@@ -91,8 +97,15 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	}*/
 
     ope := db.Operate{OpeType:db.UPDATEDOC, ColName:col,Data:[]byte(doc),IDs:id}
-    HttpDB.Propose(ope)
-    //TODO: return result
+    reschan, _ := HttpDB.Propose(ope)
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+	if res.Err != nil {
+		http.Error(w, fmt.Sprint(res.Err), http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
 
@@ -121,11 +134,16 @@ func Merge (w http.ResponseWriter, r *http.Request) {
 		return
 	}*/
     ope := db.Operate{OpeType:db.MERGEDOC, ColName:col,Data:[]byte(doc),IDs:id}
-    HttpDB.Propose(ope)
-    //TODO: return result
+    reschan, _ := HttpDB.Propose(ope)
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+	if res.Err != nil {
+		http.Error(w, fmt.Sprint(res.Err), http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
 }
-
-
 
 // Delete a document.
 func Delete(w http.ResponseWriter, r *http.Request) {
@@ -142,7 +160,15 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	}
 	//HttpDB.DeleteDoc(col,id)
     ope := db.Operate{OpeType:db.DELETEDOC, ColName:col,IDs:id}
-    HttpDB.Propose(ope)
-    //TODO: return result
+    reschan, _ := HttpDB.Propose(ope)
+
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+	if res.Err != nil {
+		http.Error(w, fmt.Sprint(res.Err), http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+    }
 }
 

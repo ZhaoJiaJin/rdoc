@@ -28,9 +28,17 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}*/
 
     ope := db.Operate{OpeType:db.CREATEIDX, ColName:col,Path:path}
-    HttpDB.Propose(ope)
+    reschan, _ := HttpDB.Propose(ope)
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+	if res.Err != nil {
+		http.Error(w, fmt.Sprint(res.Err), http.StatusInternalServerError)
+	} else {
+		//w.WriteHeader(http.StatusOK)
+	    w.WriteHeader(201)
+    }
     //TODO: return result
-	w.WriteHeader(201)
 }
 
 // Return all indexed paths.
@@ -75,6 +83,14 @@ func Unindex(w http.ResponseWriter, r *http.Request) {
 	}*/
 
     ope := db.Operate{OpeType:db.RMIDX, ColName:col,Path:path}
-    HttpDB.Propose(ope)
-    //TODO: return result
+    reschan, _ := HttpDB.Propose(ope)
+
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+	if res.Err != nil {
+		http.Error(w, fmt.Sprint(res.Err), http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+    }
 }
