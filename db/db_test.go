@@ -24,15 +24,15 @@ func TestDB(t *testing.T){
         t.Fatal(err)
     }
 
-
+    Init(1)
     data := `{"a": {"b":1}, "a1": 2}`
-    id,err := db.InsertDoc(colname,[]byte(data))
+    id,err := db.InsertDoc(colname,[]byte(data),RandID())
     if err != nil{
         t.Fatal(err)
     }
     t.Log("add doc:",id)
     data = `{"a": {"b":1}, "a1": 2}`
-    id,err = db.InsertDoc(colname,[]byte(data))
+    id,err = db.InsertDoc(colname,[]byte(data),RandID())
     if err != nil{
         t.Fatal(err)
     }

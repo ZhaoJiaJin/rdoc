@@ -7,14 +7,14 @@ import(
 
 func TestDoc(t *testing.T){
     col := NewCol()
-
+    Init(1)
     data := `{"a": {"b":1}, "a1": 2}`
-    id1, err := col.AddDoc([]byte(data))
+    id1, err := col.AddDoc(RandID(),[]byte(data))
     if err != nil{
         t.Fatal(err)
     }
     data1 := `{"a": {"b":1}, "a1": 1000}`
-    id2, err := col.AddDoc([]byte(data1))
+    id2, err := col.AddDoc(RandID(),[]byte(data1))
     if err != nil{
         t.Fatal(err)
     }

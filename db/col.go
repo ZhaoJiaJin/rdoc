@@ -23,8 +23,7 @@ func NewCol() *Col {
 }
 
 //AddDoc add doc into collection
-func (c *Col) AddDoc(data []byte) (string, error) {
-	id := RandID()
+func (c *Col) AddDoc(id string,data []byte) (string, error) {
 	doc, err := NewDoc(data)
 	if err != nil {
 		return id, err

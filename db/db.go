@@ -105,12 +105,12 @@ func (db *DB) GetAllCol() []string {
 
 //InsertDoc insert doc into a collection
 //TODO: deal with id in distributed system
-func (db *DB) InsertDoc(colname string, data []byte) (string, error) {
+func (db *DB) InsertDoc(colname string, data []byte,id string) (string, error) {
 	col, ok := db.load(colname)
 	if !ok {
 		return "", ErrColNotExist
 	}
-	return col.AddDoc(data)
+	return col.AddDoc(id,data)
 }
 
 //UpdateDoc update doc
