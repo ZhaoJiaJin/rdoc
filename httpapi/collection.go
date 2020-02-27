@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+    "rdoc/db"
 )
 
 // Create a collection.
@@ -18,11 +19,14 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	if !Require(w, r, "col", &col) {
 		return
 	}
-	if err := HttpDB.CreateCol(col); err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-	} else {
+    ope := db.Operate{OpeType:db.CREATECOL, ColName:col}
+    HttpDB.Propose(ope)
+    //TODO: return result
+	//if err := HttpDB.CreateCol(col); err != nil {
+	//	http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+	//} else {
 		w.WriteHeader(http.StatusCreated)
-	}
+	//}
 }
 
 // Alll Return all collection names.
@@ -53,9 +57,12 @@ func Rename(w http.ResponseWriter, r *http.Request) {
 	if !Require(w, r, "new", &newName) {
 		return
 	}
-	if err := HttpDB.RenameCol(oldName, newName); err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
-	}
+    ope := db.Operate{OpeType:db.RENAMECOL, ColName:oldName, Data:[]byte(newName)}
+    HttpDB.Propose(ope)
+    //TODO: return result
+	//if err := HttpDB.RenameCol(oldName, newName); err != nil {
+	//	http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+	//}
 }
 
 // Drop a collection.
@@ -68,6 +75,9 @@ func Drop(w http.ResponseWriter, r *http.Request) {
 	if !Require(w, r, "col", &col) {
 		return
 	}
-	HttpDB.RemoveCol(col)
+	//HttpDB.RemoveCol(col)
+    ope := db.Operate{OpeType:db.RENAMECOL, ColName:col}
+    HttpDB.Propose(ope)
+    //TODO: return result
 }
 

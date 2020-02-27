@@ -22,7 +22,7 @@ const(
 
 //Operate database operate request
 type Operate struct{
-    OID string
+    //OID string
     OpeType int
     ColName string
     Data []byte
@@ -112,6 +112,9 @@ func (db *DB)applyOpe(ope *Operate)(interface{},error){
 }
 
 func (db *DB) Propose(ope Operate){
+    /*if ope.OID == ""{
+        ope.OID = RandID()
+    }*/
     var buf bytes.Buffer
     if err := gob.NewEncoder(&buf).Encode(ope); err != nil{
         log.Fatal("Propose:",err)
@@ -119,7 +122,7 @@ func (db *DB) Propose(ope Operate){
     db.proposeC <- buf.String()
 }
 
-func (db *DB) getSnapshot()([]byte,error){
+func (db *DB) GetSnapshot()([]byte,error){
     return json.Marshal(db)
 }
 

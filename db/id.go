@@ -10,6 +10,7 @@ import (
 
 var (
 	node *snowflake.Node
+    nodeID int
 )
 
 //IDList idlist structure
@@ -91,9 +92,11 @@ func (l *IDList)Get(limit int)(ret []string){
     return
 }
 
-func init() {
+
+func Init(ID int) {
+    nodeID = ID
 	var err error
-	node, err = snowflake.NewNode(1)
+	node, err = snowflake.NewNode(int64(ID))
 	if err != nil {
 		panic(err)
 	}
