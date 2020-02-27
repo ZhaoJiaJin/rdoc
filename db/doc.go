@@ -5,14 +5,14 @@ import (
 )
 
 type Doc struct {
-	data map[string]interface{}
+	Data map[string]interface{}
 }
 
 func NewDoc(data []byte) (*Doc, error) {
 	d := Doc{
-		data: make(map[string]interface{}),
+		Data: make(map[string]interface{}),
 	}
-	err := json.Unmarshal(data, &d.data)
+	err := json.Unmarshal(data, &d.Data)
 	return &d, err
 }
 
@@ -47,7 +47,7 @@ func GetIn(doc interface{}, path []string) (ret []interface{}) {
 
 //Merge merge two documents
 func (d *Doc)Merge(ndoc *Doc){
-    merge(d.data, ndoc.data)
+    merge(d.Data, ndoc.Data)
 }
 
 func merge(d1 map[string]interface{},d2 map[string]interface{}){

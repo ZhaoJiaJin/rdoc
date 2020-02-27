@@ -72,7 +72,7 @@ func Lookup(lookupValue interface{}, expr map[string]interface{}, src *Col, resu
 	for _, match := range vals {
 		// Filter result to avoid hash collision
 		if doc := src.ReadDoc(match); doc != nil {
-			for _, v := range GetIn(doc.data, vecPath) {
+			for _, v := range GetIn(doc.Data, vecPath) {
 				if fmt.Sprint(v) == lookupStrValue {
 					(*result)[match] = struct{}{}
 				}

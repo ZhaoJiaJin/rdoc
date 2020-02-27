@@ -5,6 +5,7 @@ import (
 	"github.com/bwmarrin/snowflake"
     "container/list"
     "sync"
+    "encoding/json"
 )
 
 var (
@@ -22,6 +23,32 @@ func NewIDList()*IDList{
     return &IDList{
         list:list.New(),
     }
+}
+
+func (l *IDList)UnmarshalJSON(b []byte) error {
+    l.Lock()
+    defer l.Unlock()
+    res := make([]string,0)
+    if err := json.Unmarshal(b, &res); err != nil{
+        return err
+    }
+    l.list = list.New()
+    for _,v := range res{
+        l.list.PushBack(v)
+    }
+    return nil
+}
+
+func (l *IDList)MarshalJSON() ([]byte, error) {
+    l.Lock()
+    defer l.Unlock()
+    res := make([]string, l.list.Len())
+    idx := 0
+    for e := l.list.Front(); e != nil; e = e.Next() {
+        res[idx] = e.Value.(string)
+        idx ++
+	}
+    return json.Marshal(res)
 }
 
 //Add add element to list
@@ -76,3 +103,4 @@ func init() {
 func RandID() string {
 	return fmt.Sprintf("%X", node.Generate().Int64())
 }
+

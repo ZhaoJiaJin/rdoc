@@ -19,7 +19,7 @@ func TestDocGetIn(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	res := GetIn(d.data, []string{"a", "hah"})
+	res := GetIn(d.Data, []string{"a", "hah"})
 	t.Log(res)
 }
 
@@ -39,7 +39,7 @@ func TestMergeDoc(t *testing.T){
 
     d.Merge(d1)
     t.Log(d)
-    res := GetIn(d.data,[]string{"a", "hah"})
+    res := GetIn(d.Data,[]string{"a", "hah"})
     if len(res) != 1 || res[0].(string) != "9"{
         t.Log("res",res)
         t.Fatal("merge doc failed")

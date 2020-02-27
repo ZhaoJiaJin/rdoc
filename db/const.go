@@ -21,6 +21,8 @@ var (
     ErrNoSubQuery = errors.New("expecting subquery")
     ErrRangeType = errors.New("range type wrong")
     ErrRangeMiss = errors.New("miss range values from-to or int-to")
+
+    ErrUnSuppOpe = errors.New("unsupported operation")
 )
 
 const(
