@@ -22,6 +22,7 @@ func main(){
 	defer close(confChangeC)
 
 	// raft provides a commit stream for the proposals from the http api
+    db.Init(*id)
 	var docdb *db.DB
 	getSnapshot := func() ([]byte, error) { return docdb.GetSnapshot() }
 	commitC, errorC, snapshotterReady := raft.NewRaftNode(*id, strings.Split(*cluster, ","), *join, getSnapshot, proposeC, confChangeC)
