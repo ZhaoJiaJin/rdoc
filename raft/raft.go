@@ -17,12 +17,13 @@ package raft
 import (
 	"context"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"go.etcd.io/etcd/etcdserver/api/rafthttp"
 	"go.etcd.io/etcd/etcdserver/api/snap"
@@ -289,8 +290,11 @@ func (rc *raftNode) startRaft() {
 		startPeers := rpeers
 		if rc.join {
 			startPeers = nil
+			rc.node = raft.RestartNode(c)
+		} else {
+			rc.node = raft.StartNode(c, startPeers)
 		}
-		rc.node = raft.StartNode(c, startPeers)
+
 	}
 
 	rc.transport = &rafthttp.Transport{
