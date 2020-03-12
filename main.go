@@ -2,7 +2,6 @@ package main
 
 import(
     "rdoc/httpapi"
-    log "github.com/sirupsen/logrus"
     "rdoc/db"
     "go.etcd.io/etcd/raft/raftpb"
     "flag"
