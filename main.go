@@ -2,6 +2,7 @@ package main
 
 import(
     "rdoc/httpapi"
+    log "github.com/sirupsen/logrus"
     "rdoc/db"
     "go.etcd.io/etcd/raft/raftpb"
     "flag"
@@ -31,5 +32,4 @@ func main(){
 
 	// the key-value http handler will propose updates to raft
 	httpapi.ServeHttpAPI(docdb, *dbport, confChangeC, errorC,"")
-    //httpapi.Start(8080,"","")
 }

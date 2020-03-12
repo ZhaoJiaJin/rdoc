@@ -28,6 +28,7 @@ func AddNode(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    log.Infof("httpapi AddNode:%v %v",nodeIdint, url)
 	cc := raftpb.ConfChange{
 		Type:    raftpb.ConfChangeAddNode,
 		NodeID:  nodeIdint,

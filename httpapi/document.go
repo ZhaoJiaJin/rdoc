@@ -139,7 +139,7 @@ func Merge (w http.ResponseWriter, r *http.Request) {
     for res = range reschan{
     }
 	if res.Err != nil {
-		http.Error(w, fmt.Sprint(res.Err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprint(res.Err), http.StatusBadRequest)
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}

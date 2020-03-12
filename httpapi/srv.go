@@ -25,9 +25,10 @@ func Require(w http.ResponseWriter, r *http.Request, key string, val *string) bo
 }
 
 // ServeHttpAPI HTTP server and block until the server shuts down. Panic on error.
-func ServeHttpAPI(docdb *db.DB, port int, confChangeC chan<- raftpb.ConfChange, errorC <-chan error,authToken string) {
+func ServeHttpAPI(docdb *db.DB, port int, conf_changeC chan<- raftpb.ConfChange, errorC <-chan error,authToken string) {
 	var err error
 	HttpDB = docdb
+    confChangeC = conf_changeC
 
 	var authWrap func(http.HandlerFunc) http.HandlerFunc
 	if authToken != "" {
