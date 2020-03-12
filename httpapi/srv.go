@@ -3,6 +3,7 @@ package httpapi
 import (
 	"fmt"
     log "github.com/sirupsen/logrus"
+    "go.etcd.io/etcd/raft/raftpb"
 	"net/http"
     "time"
 	"rdoc/db"
@@ -10,6 +11,7 @@ import (
 
 var (
 	HttpDB *db.DB // HTTP API endpoints operate on this database
+    confChangeC chan<- raftpb.ConfChange
 )
 
 // Require Store form parameter value of specified key to *val and return true; if key does not exist, set HTTP status 400 and return false.
@@ -22,10 +24,10 @@ func Require(w http.ResponseWriter, r *http.Request, key string, val *string) bo
 	return true
 }
 
-// Start HTTP server and block until the server shuts down. Panic on error.
-func Start(port int, bind, authToken string) {
+// ServeHttpAPI HTTP server and block until the server shuts down. Panic on error.
+func ServeHttpAPI(docdb *db.DB, port int, confChangeC chan<- raftpb.ConfChange, errorC <-chan error,authToken string) {
 	var err error
-	HttpDB = db.NewDB()
+	HttpDB = docdb
 
 	var authWrap func(http.HandlerFunc) http.HandlerFunc
 	if authToken != "" {
@@ -79,14 +81,21 @@ func Start(port int, bind, authToken string) {
 	http.HandleFunc("/unindex", authWrap(Unindex))
 	//http.HandleFunc("/shutdown", authWrap(Shutdown))
 
+    //TODO:raft api
+    http.HandleFunc("/addnode", authWrap(AddNode))
+    http.HandleFunc("/delnode", authWrap(DelNode))
+
 	iface := "all interfaces"
-	if bind != "" {
-		iface = bind
-	}
+    bind := ""
 
 	log.Infof("Will listen on %s (HTTP), port %d.", iface, port)
-    if err = http.ListenAndServe(fmt.Sprintf("%s:%d", bind, port), nil); err != nil{
-        log.Fatal(err)
-    }
+    go func(){
+        if err = http.ListenAndServe(fmt.Sprintf("%s:%d", bind, port), nil); err != nil{
+            log.Fatal(err)
+        }
+    }()
+	if err, ok := <-errorC; ok {
+		log.Fatal(err)
+	}
 }
 

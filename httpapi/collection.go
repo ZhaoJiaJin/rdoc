@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+    "rdoc/db"
 )
 
 // Create a collection.
@@ -18,14 +19,19 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	if !Require(w, r, "col", &col) {
 		return
 	}
-	if err := HttpDB.CreateCol(col); err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+    ope := db.Operate{OpeType:db.CREATECOL, ColName:col}
+    reschan,_ := HttpDB.Propose(ope)
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+	if res.Err != nil {
+		http.Error(w, fmt.Sprint(res.Err), http.StatusBadRequest)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
 }
 
-// Alll Return all collection names.
+// All Return all collection names.
 func All(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "must-revalidate")
 	w.Header().Set("Content-Type", "application/json")
@@ -53,8 +59,13 @@ func Rename(w http.ResponseWriter, r *http.Request) {
 	if !Require(w, r, "new", &newName) {
 		return
 	}
-	if err := HttpDB.RenameCol(oldName, newName); err != nil {
-		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
+    ope := db.Operate{OpeType:db.RENAMECOL, ColName:oldName, Data:[]byte(newName)}
+    reschan, _ := HttpDB.Propose(ope)
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+	if res.Err != nil {
+		http.Error(w, fmt.Sprint(res.Err), http.StatusBadRequest)
 	}
 }
 
@@ -68,6 +79,11 @@ func Drop(w http.ResponseWriter, r *http.Request) {
 	if !Require(w, r, "col", &col) {
 		return
 	}
-	HttpDB.RemoveCol(col)
+	//HttpDB.RemoveCol(col)
+    ope := db.Operate{OpeType:db.RENAMECOL, ColName:col}
+    reschan, _ := HttpDB.Propose(ope)
+    //var res *db.OpeRet
+    for _ = range reschan{
+    }
 }
 

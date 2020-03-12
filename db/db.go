@@ -2,16 +2,43 @@ package db
 
 import (
 	"sync"
+    "go.etcd.io/etcd/etcdserver/api/snap"
+    "encoding/json"
 )
 
 // DB database instance
 type DB struct {
+    proposeC chan<- string
+    snapshotter *snap.Snapshotter
 	cols sync.Map
+    resCMap map[string]chan *OpeRet
+    reslock sync.RWMutex
 }
 
 // NewDB create new database instance
 func NewDB()*DB{
     return &DB{}
+}
+
+
+func (db *DB)MarshalJSON() ([]byte, error) {
+    res := make(map[string]Col)
+    db.cols.Range(func(key,value interface{})bool{
+        res[key.(string)] = *(value.(*Col))
+        return true
+    })
+    return json.Marshal(res)
+}
+
+func (db *DB)UnmarshalJSON(b []byte) error {
+    res := make(map[string]Col)
+    if err := json.Unmarshal(b,&res);err != nil{
+        return err
+    }
+    for k,v := range res{
+        db.store(k, &v)
+    }
+    return nil
 }
 
 func (db *DB) loadOrStore(key string, value *Col) (*Col, bool) {
@@ -79,12 +106,13 @@ func (db *DB) GetAllCol() []string {
 }
 
 //InsertDoc insert doc into a collection
-func (db *DB) InsertDoc(colname string, data []byte) (string, error) {
+//TODO: deal with id in distributed system
+func (db *DB) InsertDoc(colname string, data []byte,id string) (string, error) {
 	col, ok := db.load(colname)
 	if !ok {
 		return "", ErrColNotExist
 	}
-	return col.AddDoc(data)
+	return col.AddDoc(id,data)
 }
 
 //UpdateDoc update doc
@@ -133,7 +161,7 @@ func (db *DB) QueryDocByID(colname string, id string) (map[string]interface{}, e
 	}
 	res = make(map[string]interface{})
     if cl :=  col.ReadDoc(id); cl != nil{
-	    res[id] = cl.data
+	    res[id] = cl.Data
     }
 	return res, nil
 }
@@ -154,7 +182,7 @@ func (db *DB) QueryDoc(colname string, data []byte) (map[string]interface{}, err
 	res = make(map[string]interface{})
 	for id := range ids {
         if tmpcl := col.ReadDoc(id);tmpcl != nil{
-		    res[id] = tmpcl.data
+		    res[id] = tmpcl.Data
         }
 	}
 	return res, nil

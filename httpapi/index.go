@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+    "rdoc/db"
 )
 
 // Index Put an index on a document path.
@@ -21,11 +22,23 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if !Require(w, r, "path", &path) {
 		return
 	}
-	if err := HttpDB.CreateIndex(col, path); err != nil {
+	/*if err := HttpDB.CreateIndex(col, path); err != nil {
 		http.Error(w, fmt.Sprint(err), 400)
 		return
-	}
-	w.WriteHeader(201)
+	}*/
+
+    ope := db.Operate{OpeType:db.CREATEIDX, ColName:col,Path:path}
+    reschan, _ := HttpDB.Propose(ope)
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+	if res.Err != nil {
+		http.Error(w, fmt.Sprint(res.Err), http.StatusInternalServerError)
+	} else {
+		//w.WriteHeader(http.StatusOK)
+	    w.WriteHeader(201)
+    }
+    //TODO: return result
 }
 
 // Return all indexed paths.
@@ -51,7 +64,7 @@ func Indexes(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
-// Remove an indexed path.
+// Unindex Remove an indexed path.
 func Unindex(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "must-revalidate")
 	w.Header().Set("Content-Type", "text/plain")
@@ -64,8 +77,20 @@ func Unindex(w http.ResponseWriter, r *http.Request) {
 	if !Require(w, r, "path", &path) {
 		return
 	}
-	if err := HttpDB.RemoveIndex(col,path); err != nil {
+	/*if err := HttpDB.RemoveIndex(col,path); err != nil {
 		http.Error(w, fmt.Sprint(err), 400)
 		return
-	}
+	}*/
+
+    ope := db.Operate{OpeType:db.RMIDX, ColName:col,Path:path}
+    reschan, _ := HttpDB.Propose(ope)
+
+    var res *db.OpeRet
+    for res = range reschan{
+    }
+	if res.Err != nil {
+		http.Error(w, fmt.Sprint(res.Err), http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+    }
 }
