@@ -10,56 +10,64 @@ import (
 type DB struct {
     proposeC chan<- string
     snapshotter *snap.Snapshotter
-	cols sync.Map
+	//cols sync.Map
+    cols map[string]*Col
     resCMap map[string]chan *OpeRet
     reslock sync.RWMutex
+    sync.RWMutex
 }
 
 // NewDB create new database instance
 func NewDB()*DB{
-    return &DB{}
+    return &DB{
+        cols:make(map[string]*Col),
+    }
 }
 
 
 func (db *DB)MarshalJSON() ([]byte, error) {
-    res := make(map[string]Col)
-    db.cols.Range(func(key,value interface{})bool{
-        res[key.(string)] = *(value.(*Col))
-        return true
-    })
-    return json.Marshal(res)
+    db.RLock()
+    defer db.RUnlock()
+    return json.Marshal(db.cols)
 }
 
 func (db *DB)UnmarshalJSON(b []byte) error {
-    res := make(map[string]Col)
-    if err := json.Unmarshal(b,&res);err != nil{
+    db.Lock()
+    defer db.Unlock()
+    if err := json.Unmarshal(b,&(db.cols));err != nil{
         return err
-    }
-    for k,v := range res{
-        db.store(k, &v)
     }
     return nil
 }
 
-func (db *DB) loadOrStore(key string, value *Col) (*Col, bool) {
-	res, loaded := db.cols.LoadOrStore(key, value)
-	return res.(*Col), loaded
+func (db *DB) loadOrStore(key string, value *Col) (col *Col,loaded bool) {
+    //db.Lock()
+    //defer db.Unlock()
+    col,loaded = db.cols[key]
+    if loaded{
+        return
+    }
+    db.cols[key] = value
+    return value, false
 }
 
-func (db *DB) load(key string) (*Col, bool) {
-	res, ok := db.cols.Load(key)
-	if !ok {
-		return nil, ok
-	}
-	return res.(*Col), ok
+func (db *DB) load(key string) (col *Col,ok bool) {
+    //db.RLock()
+    //defer db.RUnlock()
+    col,ok = db.cols[key]
+    return
 }
 
 func (db *DB) store(key string, value *Col) {
-	db.cols.Store(key, value)
+    //db.Lock()
+    //defer db.Unlock()
+	db.cols[key] = value
 }
 
 func (db *DB) del(key string) {
-	db.cols.Delete(key)
+    //db.Lock()
+    //defer db.Unlock()
+    delete(db.cols,key)
 }
 
 //CreateCol create collection
@@ -98,10 +106,11 @@ func (db *DB) RenameCol(oldname, newname string) error {
 //GetAllCol get names of all collections
 func (db *DB) GetAllCol() []string {
 	res := make([]string, 0)
-	db.cols.Range(func(key, value interface{}) bool {
-		res = append(res, key.(string))
-		return true
-	})
+    db.RLock()
+    defer db.RUnlock()
+    for key := range db.cols{
+		res = append(res, key)
+    }
 	return res
 }
 
@@ -144,6 +153,8 @@ func (db *DB) DeleteDoc(colname string, ids string) error {
 
 //CountDoc query doc
 func (db *DB) CountDoc(colname string, data []byte) (int, error) {
+    db.RLock()
+    defer db.RUnlock()
 	col, ok := db.load(colname)
 	if !ok {
 		return 0, ErrColNotExist
@@ -154,6 +165,8 @@ func (db *DB) CountDoc(colname string, data []byte) (int, error) {
 
 //QueryDoc query doc
 func (db *DB) QueryDocByID(colname string, id string) (map[string]interface{}, error) {
+    db.RLock()
+    defer db.RUnlock()
 	var res map[string]interface{}
 	col, ok := db.load(colname)
 	if !ok {
@@ -170,6 +183,8 @@ func (db *DB) QueryDocByID(colname string, id string) (map[string]interface{}, e
 
 //QueryDoc query doc
 func (db *DB) QueryDoc(colname string, data []byte) (map[string]interface{}, error) {
+    db.RLock()
+    defer db.RUnlock()
 	var res map[string]interface{}
 	col, ok := db.load(colname)
 	if !ok {
@@ -208,6 +223,8 @@ func (db *DB) RemoveIndex(colname, path string) error {
 
 //GetAllIndex return all index names
 func (db *DB) GetAllIndex(colname string) ([]string, error) {
+    db.RLock()
+    defer db.RUnlock()
 	res := make([]string, 0)
 	col, ok := db.load(colname)
 	if !ok {
