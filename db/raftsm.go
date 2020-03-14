@@ -88,6 +88,8 @@ func (db *DB) readCommits(commitC <-chan *string, errorC <-chan error){
 }
 
 func (db *DB)applyOpe(ope *Operate)(res *OpeRet){
+    db.Lock()
+    defer db.Unlock()
     res = &OpeRet{}
     switch ope.OpeType{
     case CREATECOL:

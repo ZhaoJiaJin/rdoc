@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/bwmarrin/snowflake"
     "container/list"
-    "sync"
     "encoding/json"
 )
 
@@ -16,7 +15,6 @@ var (
 //IDList idlist structure
 type IDList struct{
     list *list.List
-    sync.RWMutex
 }
 
 //NewIDList create new idlist
@@ -27,8 +25,6 @@ func NewIDList()*IDList{
 }
 
 func (l *IDList)UnmarshalJSON(b []byte) error {
-    l.Lock()
-    defer l.Unlock()
     res := make([]string,0)
     if err := json.Unmarshal(b, &res); err != nil{
         return err
@@ -41,8 +37,6 @@ func (l *IDList)UnmarshalJSON(b []byte) error {
 }
 
 func (l *IDList)MarshalJSON() ([]byte, error) {
-    l.Lock()
-    defer l.Unlock()
     res := make([]string, l.list.Len())
     idx := 0
     for e := l.list.Front(); e != nil; e = e.Next() {
@@ -54,14 +48,11 @@ func (l *IDList)MarshalJSON() ([]byte, error) {
 
 //Add add element to list
 func (l *IDList)Add(id string){
-    l.Lock()
     l.list.PushBack(id)
-    l.Unlock()
 }
 
 //Remove remove element from list
 func (l *IDList)Remove(id string){
-    l.RLock()
     ret := make([]*list.Element,0)
     for e := l.list.Front(); e != nil; e = e.Next() {
         idstr := e.Value.(string)
@@ -69,19 +60,14 @@ func (l *IDList)Remove(id string){
             ret = append(ret,e)
         }
 	}
-    l.RUnlock()
-    l.Lock()
     for _,e := range ret{
         l.list.Remove(e)
     }
-    l.Unlock()
 }
 
 //Get get all id
 func (l *IDList)Get(limit int)(ret []string){
     cnt := 0
-    l.RLock()
-    defer l.RUnlock()
     for e := l.list.Front(); e != nil; e = e.Next() {
         ret = append(ret,e.Value.(string))
         cnt ++

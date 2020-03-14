@@ -80,7 +80,7 @@ func Drop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//HttpDB.RemoveCol(col)
-    ope := db.Operate{OpeType:db.RENAMECOL, ColName:col}
+    ope := db.Operate{OpeType:db.REMOVECOL, ColName:col}
     reschan, _ := HttpDB.Propose(ope)
     //var res *db.OpeRet
     for _ = range reschan{
