@@ -63,7 +63,7 @@ func (c *Col) MergeDoc(ids string, data []byte) error {
         c.Docs[id].Merge(newdoc)
         for _,idxe := range c.Index{
             idxe.UnIndex(id)
-            idxe.IndexDoc(id,newdoc)
+            idxe.IndexDoc(id,c.Docs[id])
         }
     }
 	return nil

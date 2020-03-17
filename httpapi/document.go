@@ -60,7 +60,7 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	}
 	doc, err := HttpDB.QueryDocByID(col,id)
 	if doc == nil {
-		http.Error(w, fmt.Sprintf("No such document ID %d.", id), 404)
+		http.Error(w, fmt.Sprintf("No such document ID %v.", id), 404)
 		return
 	}
 	resp, err := json.Marshal(doc)
